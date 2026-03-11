@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Passport Photo Maker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#f2f2f2;
+margin:0;
+}
+
+.container{
+padding:20px;
+}
+
+h2{
+color:#333;
+}
+
+.preview-box{
+margin-top:20px;
+}
+
+img{
+max-width:300px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+button{
+padding:10px 20px;
+margin:10px;
+border:none;
+background:#007bff;
+color:white;
+border-radius:5px;
+font-size:16px;
+}
+
+button:hover{
+background:#0056b3;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Passport Photo Maker</h2>
+
+<input type="file" id="upload">
+
+<br><br>
+
+<button onclick="setBg('white')">White Background</button>
+<button onclick="setBg('blue')">Blue Background</button>
+
+<div class="preview-box">
+<img id="preview">
+</div>
+
+<br>
+
+<button onclick="downloadImage()">Download 4K Passport Photo</button>
+
+</div>
+
+<script>
+
+let removedImage
+let bgColor="white"
+
+document.getElementById("upload").addEventListener("change",function(){
+
+let file=this.files[0]
+
+let formData=new FormData()
+
+formData.append("image_file",file)
+
+fetch("https://api.remove.bg/v1.0/removebg",{
+
+method:"POST",
+
+headers:{
+"X-Api-Key":"wcHwgcRR8pWncmcvfHh27mka"
+},
+
+body:formData
+
+})
+
+.then(res=>res.blob())
+
+.then(blob=>{
+
+removedImage=new Image()
+
+removedImage.src=URL.createObjectURL(blob)
+
+removedImage.onload=function(){
+
+renderImage()
+
+}
+
+})
+
+})
+
+function setBg(color){
+
+bgColor=color
+
+renderImage()
+
+}
+
+function renderImage(){
+
+if(!removedImage) return
+
+let canvas=document.createElement("canvas")
+
+canvas.width=3840
+canvas.height=3840
+
+let ctx=canvas.getContext("2d")
+
+if(bgColor=="white"){
+ctx.fillStyle="white"
+}
+
+if(bgColor=="blue"){
+ctx.fillStyle="#1e90ff"
+}
+
+ctx.fillRect(0,0,canvas.width,canvas.height)
+
+ctx.drawImage(removedImage,1000,800,1800,2200)
+
+document.getElementById("preview").src=canvas.toDataURL()
+
+window.finalImage=canvas
+
+}
+
+function downloadImage(){
+
+let link=document.createElement("a")
+
+link.download="passport-photo.png"
+
+link.href=finalImage.toDataURL()
+
+link.click()
+
+}
+
+</script>
+
+</body>
+</html>
